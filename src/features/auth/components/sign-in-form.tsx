@@ -1,91 +1,48 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useAction } from "next-safe-action/hooks";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { signInSchema, type SignInInput } from "../server/dto";
+import { signInAction } from "../server/actions";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
+import { Label } from "@/components/ui/label";
 
 export function SignInForm() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<SignInInput>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: {
-      email: "",
-      password: "",
+  const { execute, isExecuting } = useAction(signInAction, {
+    onSuccess: () => {
+      toast.success("Signed in successfully!");
+      router.push("/admin");
+    },
+    onError: ({ error }) => {
+      toast.error(error.serverError || "Invalid credentials");
     },
   });
 
-  async function onSubmit(data: SignInInput) {
-    setIsLoading(true);
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
-    const { data: _resData, error: _error } = await authClient.signIn.email(
-      {
-        email: data.email,
-        password: data.password,
-      },
-      {
-        onRequest: () => setIsLoading(true),
-        onSuccess: () => {
-          toast.success("Signed in successfully!");
-          router.push("/admin"); // Redirect based on role
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message || "Invalid credentials");
-        },
-      },
-    );
-
-    setIsLoading(false);
+    execute({ email, password });
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="john@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="********" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Signing in..." : "Sign In"}
-        </Button>
-      </form>
-    </Form>
+    <form onSubmit={onSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" name="email" type="email" placeholder="john@example.com" required />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input id="password" name="password" type="password" placeholder="********" required />
+      </div>
+      <Button type="submit" className="w-full" disabled={isExecuting}>
+        {isExecuting ? "Signing in..." : "Sign In"}
+      </Button>
+    </form>
   );
 }

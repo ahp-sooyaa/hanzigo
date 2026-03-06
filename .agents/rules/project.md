@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Antigravity / AI Coding Rules
 
 ## 1. Core Architecture & Routing
@@ -13,12 +17,14 @@
 - NEVER use inline event handlers (e.g., `onClick={() => doSomething()}`). ALWAYS extract event handlers into named, separate functions.
 - AVOID prop drilling. ALWAYS use the Composition Pattern (passing components as `children` or props) or React Context for deep state sharing.
 - IMPLEMENT the "Donut Pattern" when mixing client and server components: Extract the interactive shell into a Client Component and pass the Server Component inside it via composition (`children`).
+- NEVER use `react-hook-form` or `shadcn` Form components. ALWAYS use native HTML forms, standard React state, or simple uncontrolled inputs integrated directly with Server Actions.
 
 ## 3. Data Access & State Mutation
 - IMPLEMENT the DAL (Data Access Layer) for all database queries.
 - The DAL must NEVER return raw database objects directly to the UI or Server Actions. ALWAYS pass the DAL database result through a dedicated DTO (Data Transfer Object) mapping function to strip sensitive fields before returning the data.
 - NEVER perform data mutations outside of Server Actions. All data mutations must occur in dedicated server action files.
 - ALWAYS use `next-safe-action` for defining and executing Server Actions. Validate all inputs using Zod.
+- Note: The .schema() method is deprecated, ALWAYS use .inputSchema() instead.
 
 ## 4. Database & ORM (Drizzle)
 - NEVER write the entire database schema in a single `schema.ts` file.

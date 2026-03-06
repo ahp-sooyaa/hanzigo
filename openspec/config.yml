@@ -13,7 +13,7 @@ context: |
   Tech stack: TypeScript (strict), Next.js 16 App Router (React Server Components), Tailwind CSS v4, Bun
   Database: PostgreSQL via Neon (serverless), Drizzle ORM — one file per table schema
   Auth: BetterAuth with admin plugin
-  Server Actions: next-safe-action + Zod validation
+  Server Actions: next-safe-action + Zod validation (always use .inputSchema instead of deprecated .schema)
   Linting/Formatting: Oxlint + Oxfmt, enforced via Husky pre-commit hooks
   AI Workflow: OpenSpec (Expanded profile, Antigravity tools)
 
