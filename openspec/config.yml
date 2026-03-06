@@ -1,0 +1,27 @@
+schema: spec-driven
+
+context: |
+  Rules: Always read and follow the full coding rules defined in .agents/rules/project.md before generating any code.
+
+  Project: Hanzigo — a Learning Management System (LMS) for a Chinese language school.
+
+  Roles:
+  - admin: creates/manages classes, creates teacher accounts, assigns teachers to classes
+  - teacher: uploads course materials (docx, xlsx, pdf, mp3, etc.) to assigned classes
+  - student: browses and enrolls in open classes (no payment in v1)
+
+  Tech stack: TypeScript (strict), Next.js 16 App Router (React Server Components), Tailwind CSS v4, Bun
+  Database: PostgreSQL via Neon (serverless), Drizzle ORM — one file per table schema
+  Auth: BetterAuth with admin plugin
+  Server Actions: next-safe-action + Zod validation
+  Linting/Formatting: Oxlint + Oxfmt, enforced via Husky pre-commit hooks
+  AI Workflow: OpenSpec (Expanded profile, Antigravity tools)
+
+  Conventions:
+  - Folder structure: Feature-Sliced (e.g., src/features/classes, src/features/auth)
+  - Caching: use cache directive only — no unstable_cache or fetch cache options
+  - Data access: DAL + DTO pattern; never expose raw DB objects to the UI
+  - Mutations: Server Actions only, always via next-safe-action
+  - DB schema: one Drizzle file per table, all exported from src/db/schema/index.ts
+  - Components: default to RSC; use "use client" only for interactivity
+  - Package manager: Bun only — no npm, yarn, or pnpm
