@@ -8,27 +8,19 @@ import { db } from "@/db";
 import { user } from "@/db/schema/auth";
 import { teachers } from "@/db/schema/teachers";
 import { auth } from "@/lib/auth";
-import { actionClient } from "@/lib/safe-action";
+import { permissionAction } from "@/lib/safe-action";
 
 // 2.2 Implement `createTeacher` action
 const createTeacherSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   bio: z.string().optional(),
 });
 
-export const createTeacher = actionClient
+export const createTeacher = permissionAction("teacher", "create")
   .inputSchema(createTeacherSchema)
   .action(async ({ parsedInput }) => {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session || session.user.role !== "admin") {
-      throw new Error("Unauthorized: Only admins can perform this action");
-    }
-
     try {
       // 1. Create User via BetterAuth Admin API
       // Use createUser if adminCreateUser is missing from types, but admin plugin might export adminCreateUser
@@ -62,23 +54,15 @@ export const createTeacher = actionClient
 
 // 2.3 Implement `updateTeacher` action
 const updateTeacherSchema = z.object({
-  id: z.string().uuid("Invalid teacher ID"),
+  id: z.uuid("Invalid teacher ID"),
   name: z.string().min(2, "Name must be at least 2 characters").optional(),
   bio: z.string().nullable().optional(),
   banned: z.boolean().optional(),
 });
 
-export const updateTeacher = actionClient
+export const updateTeacher = permissionAction("teacher", "update")
   .inputSchema(updateTeacherSchema)
   .action(async ({ parsedInput }) => {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session || session.user.role !== "admin") {
-      throw new Error("Unauthorized: Only admins can perform this action");
-    }
-
     try {
       // Get teacher to find the userId
       const teacherRecord = await db.query.teachers.findFirst({
@@ -134,20 +118,12 @@ export const updateTeacher = actionClient
 
 // 2.4 Implement `deleteTeacher` action
 const deleteTeacherSchema = z.object({
-  id: z.string().uuid("Invalid teacher ID"),
+  id: z.uuid("Invalid teacher ID"),
 });
 
-export const deleteTeacher = actionClient
+export const deleteTeacher = permissionAction("teacher", "delete")
   .inputSchema(deleteTeacherSchema)
   .action(async ({ parsedInput }) => {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session || session.user.role !== "admin") {
-      throw new Error("Unauthorized: Only admins can perform this action");
-    }
-
     try {
       const teacherRecord = await db.query.teachers.findFirst({
         where: eq(teachers.id, parsedInput.id),

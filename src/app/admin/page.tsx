@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 import { requireAuth } from "@/features/auth/server/utils";
 
@@ -17,18 +18,27 @@ export default async function AdminDashboardPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Placeholder Cards */}
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <Link
+          href="/admin/students"
+          className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
           <h3 className="font-semibold">Total Students</h3>
           <p className="mt-2 text-3xl font-bold">0</p>
-        </div>
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
+        </Link>
+        <Link
+          href="/admin/teachers"
+          className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
           <h3 className="font-semibold">Total Teachers</h3>
           <p className="mt-2 text-3xl font-bold">0</p>
-        </div>
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
+        </Link>
+        <Link
+          href="/admin/classes"
+          className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
           <h3 className="font-semibold">Active Classes</h3>
           <p className="mt-2 text-3xl font-bold">0</p>
-        </div>
+        </Link>
       </div>
     </div>
   );

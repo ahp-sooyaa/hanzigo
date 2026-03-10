@@ -29,3 +29,22 @@ export async function requireRole(role: "admin" | "teacher" | "student") {
 
   return session;
 }
+
+export async function requirePermission(resource: string, action: string) {
+  const session = await requireAuth();
+
+  const hasPermission = await auth.api.userHasPermission({
+    body: {
+      userId: session.user.id,
+      permissions: {
+        [resource]: [action],
+      },
+    },
+  });
+
+  if (!hasPermission) {
+    redirect("/");
+  }
+
+  return session;
+}

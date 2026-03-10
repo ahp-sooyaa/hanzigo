@@ -3,6 +3,9 @@ import { adminAc, defaultStatements, userAc } from "better-auth/plugins/admin/ac
 
 const statement = {
   ...defaultStatements,
+  student: ["create", "read", "update", "delete"],
+  teacher: ["create", "read", "update", "delete"],
+  class: ["create", "read", "update", "delete"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -12,12 +15,17 @@ export const admin = adminAc;
 export const user = userAc;
 
 export const teacher = ac.newRole({
-  user: [],
-  session: [],
+  class: ["read"],
+  student: ["read"],
+});
+
+export const student = ac.newRole({
+  class: ["read"],
 });
 
 export const roles = {
   admin,
   user,
   teacher,
+  student,
 };

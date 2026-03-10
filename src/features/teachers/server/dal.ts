@@ -1,20 +1,13 @@
 import "server-only";
 import { eq, desc } from "drizzle-orm";
-import { headers } from "next/headers";
 import { mapToTeacherDTO, TeacherDTO } from "./dto";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth";
 import { teachers } from "@/db/schema/teachers";
-import { auth } from "@/lib/auth";
+import { requirePermission } from "@/features/auth/server/utils";
 
 export async function getTeachers(): Promise<TeacherDTO[]> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session || session.user.role !== "admin") {
-    throw new Error("Unauthorized: Only admins can perform this action");
-  }
+  await requirePermission("teacher", "read");
 
   const result = await db
     .select({
@@ -37,13 +30,7 @@ export async function getTeachers(): Promise<TeacherDTO[]> {
 }
 
 export async function getTeacherById(id: string): Promise<TeacherDTO | null> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session || session.user.role !== "admin") {
-    throw new Error("Unauthorized: Only admins can perform this action");
-  }
+  await requirePermission("teacher", "read");
 
   const result = await db
     .select({
