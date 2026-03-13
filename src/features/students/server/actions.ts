@@ -26,7 +26,7 @@ export const createStudent = permissionAction("student", "create")
           email: parsedInput.email,
           name: parsedInput.name,
           password: parsedInput.password,
-          role: "user",
+          role: "student",
         },
       });
 

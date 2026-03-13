@@ -10,18 +10,23 @@ import { Label } from "@/components/ui/label";
 
 export function SignInForm() {
   const router = useRouter();
+  const roleRedirects: Record<string, string> = {
+    admin: "/admin",
+    teacher: "/teacher",
+    student: "/student",
+  };
 
   const { execute, isExecuting } = useAction(signInAction, {
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
       toast.success("Signed in successfully!");
-      router.push("/admin");
+      router.push(roleRedirects[data.role ?? ""] || "/");
     },
     onError: ({ error }) => {
       toast.error(error.serverError || "Invalid credentials");
     },
   });
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;

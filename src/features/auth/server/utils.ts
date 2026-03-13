@@ -30,10 +30,12 @@ export async function requireRole(role: "admin" | "teacher" | "student") {
   return session;
 }
 
-export async function requirePermission(resource: string, action: string) {
-  const session = await requireAuth();
+export async function hasPermission(resource: string, action: string) {
+  const session = await getSession();
 
-  const hasPermission = await auth.api.userHasPermission({
+  if (!session) return false;
+
+  const permissionResponse = await auth.api.userHasPermission({
     body: {
       userId: session.user.id,
       permissions: {
@@ -42,9 +44,5 @@ export async function requirePermission(resource: string, action: string) {
     },
   });
 
-  if (!hasPermission) {
-    redirect("/");
-  }
-
-  return session;
+  return permissionResponse?.success === true;
 }

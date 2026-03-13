@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
-import { requireAuth } from "@/features/auth/server/utils";
 
 export default async function AdminDashboardPage() {
-  const session = await requireAuth();
-
   return (
     <div className="space-y-6 p-8">
       <header className="flex items-center justify-between border-b pb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-gray-500">Welcome back, {session.user.name}</p>
+          <p className="text-gray-500">Welcome to the admin panel.</p>
         </div>
 
         <SignOutButton />

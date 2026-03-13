@@ -1,26 +1,20 @@
 import "server-only";
 import { eq, desc, ilike, or, count } from "drizzle-orm";
-import { headers } from "next/headers";
+import { cacheLife, cacheTag } from "next/cache";
 import { mapToClassDTO, ClassDTO } from "./dto";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth";
 import { classes } from "@/db/schema/classes";
 import { teachers } from "@/db/schema/teachers";
-import { requirePermission } from "@/features/auth/server/utils";
-import { auth } from "@/lib/auth";
 
 export async function getClasses(
   page: number = 1,
   pageSize: number = 10,
   searchQuery?: string,
 ): Promise<{ data: ClassDTO[]; total: number; pageCount: number }> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session || session.user.role !== "admin") {
-    throw new Error("Unauthorized: Only admins can perform this action");
-  }
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("classes");
 
   const offset = (page - 1) * pageSize;
 
@@ -67,7 +61,9 @@ export async function getClasses(
 }
 
 export async function getClassById(id: string): Promise<ClassDTO | null> {
-  await requirePermission("class", "read");
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("classes");
 
   const result = await db
     .select({
@@ -93,13 +89,9 @@ export async function getClassById(id: string): Promise<ClassDTO | null> {
 }
 
 export async function getAllTeachersForDropdown() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session || session.user.role !== "admin") {
-    throw new Error("Unauthorized: Only admins can perform this action");
-  }
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("teachers");
 
   const result = await db
     .select({

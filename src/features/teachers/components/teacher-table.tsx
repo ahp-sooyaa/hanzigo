@@ -16,9 +16,11 @@ import { TeacherDTO } from "@/features/teachers/server/dto";
 
 interface TeacherTableProps {
   teachers: TeacherDTO[];
+  canUpdate?: boolean;
+  canDelete?: boolean;
 }
 
-export function TeacherTable({ teachers }: TeacherTableProps) {
+export function TeacherTable({ teachers, canUpdate, canDelete }: TeacherTableProps) {
   if (teachers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-md border bg-muted/20 p-8 text-center">
@@ -60,8 +62,8 @@ export function TeacherTable({ teachers }: TeacherTableProps) {
               <TableCell>{format(new Date(teacher.createdAt), "MMM d, yyyy")}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <EditTeacherDialog teacher={teacher} />
-                  <DeleteTeacherAlert teacher={teacher} />
+                  {canUpdate && <EditTeacherDialog teacher={teacher} />}
+                  {canDelete && <DeleteTeacherAlert teacher={teacher} />}
                 </div>
               </TableCell>
             </TableRow>

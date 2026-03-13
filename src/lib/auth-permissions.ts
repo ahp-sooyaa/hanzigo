@@ -10,7 +10,12 @@ const statement = {
 
 export const ac = createAccessControl(statement);
 
-export const admin = adminAc;
+export const admin = ac.newRole({
+  student: ["create", "read", "update", "delete"],
+  teacher: ["create", "read", "update", "delete"],
+  class: ["create", "read", "update", "delete"],
+  ...adminAc.statements,
+});
 
 export const user = userAc;
 

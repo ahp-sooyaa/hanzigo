@@ -27,14 +27,17 @@ export const signInAction = actionClient
   .inputSchema(signInSchema)
   .action(async ({ parsedInput: { email, password } }) => {
     try {
-      await auth.api.signInEmail({
+      const result = await auth.api.signInEmail({
         headers: await headers(),
         body: {
           email,
           password,
         },
       });
-      return { success: true };
+      return {
+        success: true,
+        role: result.user.role,
+      };
     } catch (error: any) {
       throw new Error(error.message || "Failed to sign in");
     }

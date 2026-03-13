@@ -1,13 +1,15 @@
 import "server-only";
 import { eq, desc } from "drizzle-orm";
+import { cacheLife, cacheTag } from "next/cache";
 import { mapToTeacherDTO, TeacherDTO } from "./dto";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth";
 import { teachers } from "@/db/schema/teachers";
-import { requirePermission } from "@/features/auth/server/utils";
 
 export async function getTeachers(): Promise<TeacherDTO[]> {
-  await requirePermission("teacher", "read");
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("teachers");
 
   const result = await db
     .select({
@@ -30,7 +32,9 @@ export async function getTeachers(): Promise<TeacherDTO[]> {
 }
 
 export async function getTeacherById(id: string): Promise<TeacherDTO | null> {
-  await requirePermission("teacher", "read");
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("teachers");
 
   const result = await db
     .select({
