@@ -3,8 +3,8 @@ import { auth } from "@/lib/auth";
 
 const routeRoles: Record<string, string[]> = {
   "/admin": ["admin"],
-  "/teacher": ["teacher", "admin"],
-  "/student": ["student", "admin"],
+  "/teacher": ["teacher"],
+  "/student": ["student"],
 };
 
 // Define the permissions required for each route
@@ -58,5 +58,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Match all admin routes so we can protect them centrally
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/teacher/:path*", "/student/:path*"],
 };

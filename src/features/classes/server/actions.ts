@@ -48,6 +48,7 @@ export const createClass = permissionAction("class", "create")
       });
 
       revalidateTag("classes", "minutes");
+      revalidateTag(`classes:teacher-user:${teacherRecord.userId}`, "minutes");
 
       return { success: true };
     } catch (error: any) {
@@ -90,6 +91,7 @@ export const updateClass = permissionAction("class", "update")
         .where(eq(classes.id, parsedInput.id));
 
       revalidateTag("classes", "minutes");
+      revalidateTag(`classes:teacher-user:${teacherRecord.userId}`, "minutes");
 
       return { success: true };
     } catch (error: any) {
@@ -109,9 +111,18 @@ export const deleteClass = permissionAction("class", "delete")
         throw new Error("Class not found");
       }
 
+      const teacherRecord = await db.query.teachers.findFirst({
+        where: eq(teachers.id, classRecord.teacherId),
+      });
+
+      if (!teacherRecord) {
+        throw new Error("Teacher not found");
+      }
+
       await db.delete(classes).where(eq(classes.id, parsedInput.id));
 
       revalidateTag("classes", "minutes");
+      revalidateTag(`classes:teacher-user:${teacherRecord.userId}`, "minutes");
 
       return { success: true };
     } catch (error: any) {

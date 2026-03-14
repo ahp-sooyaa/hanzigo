@@ -12,15 +12,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ManageEnrollmentDialog } from "@/features/enrollments/components/manage-enrollment-dialog";
 import { StudentDTO } from "@/features/students/server/dto";
 
 interface StudentTableProps {
   students: StudentDTO[];
+  classOptions: { id: string; name: string; teacherName: string | null }[];
+  enrollmentsByStudentId: Record<
+    string,
+    { classId: string; className: string; teacherName: string | null }[]
+  >;
   canUpdate?: boolean;
   canDelete?: boolean;
 }
 
-export function StudentTable({ students, canUpdate, canDelete }: StudentTableProps) {
+export function StudentTable({
+  students,
+  classOptions,
+  enrollmentsByStudentId,
+  canUpdate,
+  canDelete,
+}: StudentTableProps) {
   if (students.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-md border bg-muted/20 p-8 text-center">
@@ -62,6 +74,11 @@ export function StudentTable({ students, canUpdate, canDelete }: StudentTablePro
               <TableCell>{format(new Date(student.createdAt), "MMM d, yyyy")}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  <ManageEnrollmentDialog
+                    student={student}
+                    classOptions={classOptions}
+                    enrolledClasses={enrollmentsByStudentId[student.id] || []}
+                  />
                   {canUpdate && <EditStudentDialog student={student} />}
                   {canDelete && <DeleteStudentAlert student={student} />}
                 </div>
