@@ -22,9 +22,9 @@ export function CreateClassDialog({ teachers }: CreateClassDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className="rounded-xl bg-[var(--admin-primary)] px-5 font-semibold text-white hover:bg-[var(--admin-primary-strong)]">
           <Plus className="mr-2 h-4 w-4" />
-          Add Class
+          Create New Class
         </Button>
       </DialogTrigger>
       <DialogContent>

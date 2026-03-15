@@ -1,4 +1,6 @@
+import { CalendarDays, School, Users } from "lucide-react";
 import { Suspense } from "react";
+import { AdminListShell } from "@/app/admin/_components/admin-list-shell";
 import { IfPermitted } from "@/features/auth/components/if-permitted";
 import { ClassListFetched } from "@/features/classes/components/class-list-fetched";
 import { CreateClassButton } from "@/features/classes/components/create-class-button";
@@ -12,22 +14,26 @@ export default async function AdminClassesPage(props: {
   searchParams: Promise<{ page?: string; search?: string }>;
 }) {
   return (
-    <div className="space-y-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Classes</h1>
-          <p className="text-muted-foreground">Manage classes and assign teachers to them.</p>
-        </div>
-        <Suspense fallback={<div className="h-10 w-28 animate-pulse rounded-md bg-muted" />}>
+    <AdminListShell
+      breadcrumb="Class Management"
+      title="Class Management"
+      activeTab="classes"
+      stats={[
+        { icon: School, label: "42 Active Classes" },
+        { icon: Users, label: "1,205 Enrolled Students" },
+        { icon: CalendarDays, label: "Spring Term 2024" },
+      ]}
+      action={
+        <Suspense fallback={<div className="h-11 w-36 animate-pulse rounded-xl bg-muted" />}>
           <IfPermitted resource="class" action="create">
             <CreateClassButton />
           </IfPermitted>
         </Suspense>
-      </div>
-
+      }
+    >
       <Suspense fallback={<div>Loading classes...</div>}>
         <ClassListFetched searchParams={props.searchParams} />
       </Suspense>
-    </div>
+    </AdminListShell>
   );
 }

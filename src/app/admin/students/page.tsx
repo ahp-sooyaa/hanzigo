@@ -1,7 +1,10 @@
+import { TrendingUp, Users } from "lucide-react";
 import { Suspense } from "react";
+import { AdminListShell } from "@/app/admin/_components/admin-list-shell";
 import { IfPermitted } from "@/features/auth/components/if-permitted";
 import { CreateStudentDialog } from "@/features/students/components/create-student-dialog";
 import { StudentListFetched } from "@/features/students/components/student-list-fetched";
+
 export const metadata = {
   title: "Admin | Students - Hanzigo",
   description: "Manage students in Hanzigo",
@@ -9,22 +12,25 @@ export const metadata = {
 
 export default async function AdminStudentsPage() {
   return (
-    <div className="space-y-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Students</h1>
-          <p className="text-muted-foreground">Manage student accounts and their statuses.</p>
-        </div>
-        <Suspense fallback={<div className="h-10 w-28 animate-pulse rounded-md bg-muted" />}>
+    <AdminListShell
+      breadcrumb="User Management"
+      title="Student Management"
+      activeTab="students"
+      stats={[
+        { icon: Users, label: "Total Students: 1,248" },
+        { icon: TrendingUp, label: "Active This Month: 95%" },
+      ]}
+      action={
+        <Suspense fallback={<div className="h-11 w-36 animate-pulse rounded-xl bg-muted" />}>
           <IfPermitted resource="student" action="create">
             <CreateStudentDialog />
           </IfPermitted>
         </Suspense>
-      </div>
-
+      }
+    >
       <Suspense fallback={<div>Loading students...</div>}>
         <StudentListFetched />
       </Suspense>
-    </div>
+    </AdminListShell>
   );
 }
