@@ -20,6 +20,7 @@ export async function TeacherClassesFetched() {
       classes={classes}
       emptyTitle="No assigned classes"
       emptyDescription="You don't have any assigned classes yet."
+      role="teacher"
     />
   );
 }

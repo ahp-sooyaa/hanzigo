@@ -1,4 +1,8 @@
+import { Facebook, GraduationCap, ShieldCheck, Twitter } from "lucide-react";
 import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import Link from "next/link";
+import { Suspense } from "react";
+import { UserMenu } from "@/components/layout/user-menu";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import type { Metadata } from "next";
@@ -26,7 +30,64 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${plusJakartaSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
+        <div className="min-h-screen bg-[var(--admin-surface)] text-[var(--admin-text-main)]">
+          <header className="fixed inset-x-0 top-0 z-20 border-b border-[var(--admin-border)] bg-white/95 backdrop-blur">
+            <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+              <Link href="/" className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--admin-primary)] text-white">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-extrabold tracking-tight text-[var(--admin-primary)] md:text-base">
+                  LMS ACADEMY
+                </span>
+              </Link>
+              <Suspense
+                fallback={<div className="h-9 w-9 rounded-full bg-[var(--admin-border)]" />}
+              >
+                <UserMenu />
+              </Suspense>
+            </div>
+          </header>
+
+          {children}
+
+          <footer className="bg-[var(--admin-primary)] py-10 text-white">
+            <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 sm:grid-cols-3 sm:px-6 lg:px-8">
+              <div>
+                <div className="mb-3 flex items-center gap-2 text-lg font-bold">
+                  <GraduationCap className="h-5 w-5" />
+                  LMS Academy
+                </div>
+                <p className="max-w-xs text-sm text-white/85">
+                  Empowering students worldwide with structured education and expert instruction.
+                </p>
+              </div>
+              <div>
+                <h3 className="mb-3 text-xs font-semibold tracking-wide text-white/70 uppercase">
+                  Academics
+                </h3>
+                <p className="text-sm font-semibold">Classes</p>
+              </div>
+              <div>
+                <h3 className="mb-3 text-xs font-semibold tracking-wide text-white/70 uppercase">
+                  Legal
+                </h3>
+                <ul className="space-y-2 text-sm">
+                  <li>Privacy Policy</li>
+                  <li>Terms of Use</li>
+                  <li>Cookie Policy</li>
+                </ul>
+              </div>
+            </div>
+            <div className="mx-auto mt-8 flex w-full max-w-7xl items-center justify-between border-t border-white/20 px-4 pt-4 text-xs text-white/80 sm:px-6 lg:px-8">
+              <p>© 2024 LMS Academy. All rights reserved.</p>
+              <div className="flex items-center gap-3">
+                <Facebook className="h-4 w-4" />
+                <Twitter className="h-4 w-4" />
+              </div>
+            </div>
+          </footer>
+        </div>
         <Toaster />
       </body>
     </html>

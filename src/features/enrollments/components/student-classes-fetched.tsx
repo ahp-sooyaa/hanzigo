@@ -20,6 +20,7 @@ export async function StudentClassesFetched() {
       classes={classes}
       emptyTitle="No enrollments yet"
       emptyDescription="You haven't been enrolled in any classes yet."
+      role="student"
     />
   );
 }

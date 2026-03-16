@@ -11,21 +11,23 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { AdminListShell } from "@/app/admin/_components/admin-list-shell";
+import { AdminTabs } from "@/components/layout/admin-tabs";
+import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default async function AdminDashboardPage() {
   return (
-    <AdminListShell
+    <DashboardShell
+      portalLabel="Admin Portal"
       breadcrumb="Dashboard"
       title="Admin Dashboard"
-      activeTab="dashboard"
       stats={[
         { icon: School, label: "42 Active Classes" },
         { icon: Users, label: "1,205 Enrolled Students" },
         { icon: BarChart3, label: "System Health: Stable" },
       ]}
+      tabs={<AdminTabs activeTab="dashboard" />}
       action={
         <Button className="rounded-xl bg-[var(--admin-primary)] px-5 font-semibold text-white hover:bg-[var(--admin-primary-strong)]">
           <Megaphone className="mr-2 h-4 w-4" />
@@ -205,6 +207,6 @@ export default async function AdminDashboardPage() {
           </section>
         </div>
       </div>
-    </AdminListShell>
+    </DashboardShell>
   );
 }

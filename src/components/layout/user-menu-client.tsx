@@ -4,15 +4,13 @@ import { Bell, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 
-interface AdminUserMenuProps {
-  name?: string;
-  role?: string;
+interface UserMenuClientProps {
+  name: string;
+  role: string;
+  initials: string;
 }
 
-export function AdminUserMenu({
-  name = "Admin User",
-  role = "System Administrator",
-}: AdminUserMenuProps) {
+export function UserMenuClient({ name, role, initials }: UserMenuClientProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -61,7 +59,7 @@ export function AdminUserMenu({
             <p className="text-xs text-[var(--admin-text-muted)]">{role}</p>
           </div>
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--admin-primary)] text-xs font-bold text-white">
-            AD
+            {initials}
           </div>
           <ChevronDown className="h-4 w-4 text-[var(--admin-text-muted)]" />
         </button>
