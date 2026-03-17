@@ -22,6 +22,13 @@
       "when": 1772782392721,
       "tag": "0002_small_puppet_master",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773712786614,
+      "tag": "0003_groovy_gateway",
+      "breakpoints": true
     }
   ]
 }

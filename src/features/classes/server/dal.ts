@@ -88,6 +88,39 @@ export async function getClassById(id: string): Promise<ClassDTO | null> {
   return mapToClassDTO(result[0]);
 }
 
+export async function getTeacherOwnedClassById(
+  classId: string,
+  userId: string,
+): Promise<ClassDTO | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(`classes:teacher-user:${userId}`);
+
+  const result = await db
+    .select({
+      id: classes.id,
+      name: classes.name,
+      description: classes.description,
+      teacherId: classes.teacherId,
+      createdAt: classes.createdAt,
+      updatedAt: classes.updatedAt,
+      teacherName: user.name,
+    })
+    .from(classes)
+    .innerJoin(teachers, eq(classes.teacherId, teachers.id))
+    .innerJoin(user, eq(teachers.userId, user.id))
+    .where(eq(classes.id, classId))
+    .limit(1);
+
+  const classRecord = result[0];
+  if (!classRecord) return null;
+
+  const teacherRecord = await db.query.teachers.findFirst({ where: eq(teachers.userId, userId) });
+  if (!teacherRecord || teacherRecord.id !== classRecord.teacherId) return null;
+
+  return mapToClassDTO(classRecord);
+}
+
 export async function getAllTeachersForDropdown() {
   "use cache";
   cacheLife("minutes");

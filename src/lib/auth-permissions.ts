@@ -7,6 +7,7 @@ const statement = {
   teacher: ["create", "read", "update", "delete"],
   class: ["create", "read", "update", "delete"],
   enrollment: ["create", "read", "update", "delete"],
+  material: ["create", "read", "update", "delete"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -16,6 +17,7 @@ export const admin = ac.newRole({
   teacher: ["create", "read", "update", "delete"],
   class: ["create", "read", "update", "delete"],
   enrollment: ["create", "read", "update", "delete"],
+  material: ["create", "read", "update", "delete"],
   ...adminAc.statements,
 });
 
@@ -24,6 +26,7 @@ export const user = userAc;
 export const teacher = ac.newRole({
   class: ["read"],
   student: ["read"],
+  material: ["create", "read", "update", "delete"],
 });
 
 export const student = ac.newRole({

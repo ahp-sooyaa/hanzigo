@@ -1,6 +1,8 @@
 "use client";
 
 import { BookOpenCheck, Clock3, GraduationCap, Users } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface ClassListReadonlyProps {
   classes: { id: string; name: string; description: string | null; teacherName: string | null }[];
@@ -75,10 +77,19 @@ export function ClassListReadonly({
           </div>
 
           <div className="relative z-10 mt-6 border-t border-gray-100 pt-4">
-            <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700">
-              <BookOpenCheck className="h-4 w-4" />
-              Open Class
-            </span>
+            {role === "teacher" ? (
+              <Button asChild size="sm">
+                <Link href={`/teacher/classes/${classRecord.id}/overview`}>
+                  <BookOpenCheck className="h-4 w-4" />
+                  Manage Class
+                </Link>
+              </Button>
+            ) : (
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700">
+                <BookOpenCheck className="h-4 w-4" />
+                Open Class
+              </span>
+            )}
           </div>
         </article>
       ))}
