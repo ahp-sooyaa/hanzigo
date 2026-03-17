@@ -32,7 +32,8 @@ export function SignOutButton({
       await authClient.signOut({
         fetchOptions: {
           onSuccess: () => {
-            router.push("/sign-in");
+            router.replace("/sign-in?clear=1");
+            router.refresh();
           },
         },
       });
