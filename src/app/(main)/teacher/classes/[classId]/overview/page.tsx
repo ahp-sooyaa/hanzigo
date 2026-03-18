@@ -5,9 +5,9 @@ import { Suspense } from "react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { TeacherClassTabs } from "@/components/layout/teacher-class-tabs";
 import { Button } from "@/components/ui/button";
-import { requireRole } from "@/features/auth/server/utils";
+import { getSession } from "@/features/auth/server/utils";
+import { TeacherClassOverviewFetched } from "@/features/classes/components/teacher-class-overview-fetched";
 import { getTeacherOwnedClassById } from "@/features/classes/server/dal";
-import { getTeacherClassMaterials } from "@/features/materials/server/dal";
 
 export default function TeacherClassOverviewPage(props: { params: Promise<{ classId: string }> }) {
   return (
@@ -18,60 +18,37 @@ export default function TeacherClassOverviewPage(props: { params: Promise<{ clas
 }
 
 async function TeacherClassOverviewContent(props: { params: Promise<{ classId: string }> }) {
-  const session = await requireRole("teacher");
+  const session = await getSession();
+  if (!session) notFound();
+
   const { classId } = await props.params;
 
   const classRecord = await getTeacherOwnedClassById(classId, session.user.id);
   if (!classRecord) notFound();
 
-  const materials = await getTeacherClassMaterials(classId, session.user.id);
-
   return (
     <DashboardShell
       portalLabel="Teacher Portal"
-      breadcrumb={`Class Management / ${classRecord.name}`}
-      title={classRecord.name}
+      breadcrumb="Class Overview"
+      title="Class Overview"
       stats={[
-        { icon: School, label: "Class Overview" },
-        { icon: FileText, label: `${materials.length} Materials` },
+        { icon: School, label: "Class Summary" },
+        { icon: FileText, label: "Materials Snapshot" },
         { icon: CalendarDays, label: "Teacher Workspace" },
       ]}
-      tabs={<TeacherClassTabs classId={classRecord.id} activeTab="overview" />}
+      tabs={<TeacherClassTabs classId={classId} activeTab="overview" />}
       action={
         <Button asChild>
-          <Link href={`/teacher/classes/${classRecord.id}/materials`}>
+          <Link href={`/teacher/classes/${classId}/materials`}>
             <BookOpen className="h-4 w-4" />
             Go to Materials
           </Link>
         </Button>
       }
     >
-      <div className="grid gap-5 md:grid-cols-3">
-        <article className="rounded-2xl border border-[var(--admin-border)] bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold tracking-wide text-[var(--admin-text-muted)] uppercase">
-            Description
-          </p>
-          <p className="mt-2 text-sm text-[var(--admin-text-main)]">
-            {classRecord.description || "No class description provided yet."}
-          </p>
-        </article>
-        <article className="rounded-2xl border border-[var(--admin-border)] bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold tracking-wide text-[var(--admin-text-muted)] uppercase">
-            Assigned Teacher
-          </p>
-          <p className="mt-2 text-sm font-semibold text-[var(--admin-title)]">
-            {classRecord.teacherName || "Unassigned"}
-          </p>
-        </article>
-        <article className="rounded-2xl border border-[var(--admin-border)] bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold tracking-wide text-[var(--admin-text-muted)] uppercase">
-            Materials
-          </p>
-          <p className="mt-2 text-sm font-semibold text-[var(--admin-title)]">
-            {materials.length} uploaded resources
-          </p>
-        </article>
-      </div>
+      <Suspense fallback={<div>Loading class details...</div>}>
+        <TeacherClassOverviewFetched classId={classId} userId={session.user.id} />
+      </Suspense>
     </DashboardShell>
   );
 }
