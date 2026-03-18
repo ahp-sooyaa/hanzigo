@@ -5,6 +5,8 @@ import { mapToClassMaterialDTO } from "./dto";
 import { db } from "@/db";
 import { classMaterials } from "@/db/schema/class-materials";
 import { classes } from "@/db/schema/classes";
+import { enrollments } from "@/db/schema/enrollments";
+import { students } from "@/db/schema/students";
 import { teachers } from "@/db/schema/teachers";
 
 async function getTeacherIdByUserId(userId: string) {
@@ -48,4 +50,31 @@ export async function getTeacherIdForOwnedClass(classId: string, userId: string)
 
   if (!classRecord) return null;
   return teacherId;
+}
+
+export async function getStudentClassMaterials(classId: string, userId: string) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(`class-materials:${classId}`);
+  cacheTag(`enrollments:user:${userId}`);
+
+  const studentRecord = await db.query.students.findFirst({
+    where: eq(students.userId, userId),
+  });
+
+  if (!studentRecord) return [];
+
+  const enrollmentRecord = await db.query.enrollments.findFirst({
+    where: and(eq(enrollments.classId, classId), eq(enrollments.studentId, studentRecord.id)),
+  });
+
+  if (!enrollmentRecord) return [];
+
+  const result = await db
+    .select()
+    .from(classMaterials)
+    .where(eq(classMaterials.classId, classId))
+    .orderBy(desc(classMaterials.createdAt));
+
+  return result.map(mapToClassMaterialDTO);
 }

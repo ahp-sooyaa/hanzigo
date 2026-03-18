@@ -1,5 +1,5 @@
 import "server-only";
-import { desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth";
@@ -148,4 +148,44 @@ export async function getClassesForTeacherUser(userId: string): Promise<ClassSum
     description: row.description ?? null,
     teacherName: row.teacherName ?? null,
   }));
+}
+
+export async function getStudentEnrolledClassById(
+  userId: string,
+  classId: string,
+): Promise<ClassSummary | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(`enrollments:user:${userId}`);
+  cacheTag(`class-materials:${classId}`);
+
+  const studentRecord = await db.query.students.findFirst({
+    where: eq(students.userId, userId),
+  });
+
+  if (!studentRecord) return null;
+
+  const result = await db
+    .select({
+      id: classes.id,
+      name: classes.name,
+      description: classes.description,
+      teacherName: user.name,
+    })
+    .from(enrollments)
+    .innerJoin(classes, eq(enrollments.classId, classes.id))
+    .innerJoin(teachers, eq(classes.teacherId, teachers.id))
+    .innerJoin(user, eq(teachers.userId, user.id))
+    .where(and(eq(enrollments.studentId, studentRecord.id), eq(classes.id, classId)))
+    .limit(1);
+
+  const classRecord = result[0];
+  if (!classRecord) return null;
+
+  return {
+    id: classRecord.id,
+    name: classRecord.name,
+    description: classRecord.description ?? null,
+    teacherName: classRecord.teacherName ?? null,
+  };
 }

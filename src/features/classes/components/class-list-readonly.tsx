@@ -85,10 +85,12 @@ export function ClassListReadonly({
                 </Link>
               </Button>
             ) : (
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700">
-                <BookOpenCheck className="h-4 w-4" />
-                Open Class
-              </span>
+              <Button asChild size="sm">
+                <Link href={`/student/classes/${classRecord.id}/materials`}>
+                  <BookOpenCheck className="h-4 w-4" />
+                  Go Class
+                </Link>
+              </Button>
             )}
           </div>
         </article>

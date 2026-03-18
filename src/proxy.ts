@@ -16,6 +16,10 @@ const routePermissions: Record<string, { resource: string; action: string }[]> =
     { resource: "class", action: "read" },
     { resource: "material", action: "read" },
   ],
+  "/student/classes": [
+    { resource: "class", action: "read" },
+    { resource: "material", action: "read" },
+  ],
 };
 
 export async function proxy(request: NextRequest) {

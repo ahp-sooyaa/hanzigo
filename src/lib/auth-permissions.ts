@@ -31,6 +31,7 @@ export const teacher = ac.newRole({
 
 export const student = ac.newRole({
   class: ["read"],
+  material: ["read"],
 });
 
 export const roles = {
