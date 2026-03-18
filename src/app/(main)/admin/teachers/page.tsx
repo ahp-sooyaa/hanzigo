@@ -1,19 +1,21 @@
 import { CheckCircle2, PauseCircle, Users } from "lucide-react";
 import { Suspense } from "react";
 import { AdminTabs } from "@/components/layout/admin-tabs";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { PageShell } from "@/components/layout/page-shell";
 import { IfPermitted } from "@/features/auth/components/if-permitted";
 import { CreateTeacherDialog } from "@/features/teachers/components/create-teacher-dialog";
-import { TeacherListFetched } from "@/features/teachers/components/teacher-list-fetched";
+import { TeacherTable } from "@/features/teachers/components/teacher-table";
 
 export const metadata = {
   title: "Admin | Teachers - Hanzigo",
   description: "Manage teachers in Hanzigo",
 };
 
-export default async function AdminTeachersPage() {
+export default async function AdminTeachersPage(props: {
+  searchParams: Promise<{ q?: string; filter?: string; sort?: string; page?: string }>;
+}) {
   return (
-    <DashboardShell
+    <PageShell
       portalLabel="Admin Portal"
       breadcrumb="Teachers"
       title="Teacher Management"
@@ -32,8 +34,8 @@ export default async function AdminTeachersPage() {
       }
     >
       <Suspense fallback={<div>Loading teachers...</div>}>
-        <TeacherListFetched />
+        <TeacherTable searchParams={props.searchParams} />
       </Suspense>
-    </DashboardShell>
+    </PageShell>
   );
 }

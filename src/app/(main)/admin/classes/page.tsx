@@ -1,10 +1,11 @@
 import { CalendarDays, School, Users } from "lucide-react";
 import { Suspense } from "react";
 import { AdminTabs } from "@/components/layout/admin-tabs";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { PageShell } from "@/components/layout/page-shell";
 import { IfPermitted } from "@/features/auth/components/if-permitted";
-import { ClassListFetched } from "@/features/classes/components/class-list-fetched";
-import { CreateClassButton } from "@/features/classes/components/create-class-button";
+import { ClassTable } from "@/features/classes/components/class-table";
+import { CreateClassDialog } from "@/features/classes/components/create-class-dialog";
+import { TeacherSelectOptions } from "@/features/classes/components/teacher-select-options";
 
 export const metadata = {
   title: "Admin | Classes - Hanzigo",
@@ -12,10 +13,10 @@ export const metadata = {
 };
 
 export default async function AdminClassesPage(props: {
-  searchParams: Promise<{ page?: string; search?: string }>;
+  searchParams: Promise<{ q?: string; filter?: string; sort?: string; page?: string }>;
 }) {
   return (
-    <DashboardShell
+    <PageShell
       portalLabel="Admin Portal"
       breadcrumb="Class Management"
       title="Class Management"
@@ -28,14 +29,14 @@ export default async function AdminClassesPage(props: {
       action={
         <Suspense fallback={<div className="h-11 w-36 animate-pulse rounded-xl bg-muted" />}>
           <IfPermitted resource="class" action="create">
-            <CreateClassButton />
+            <CreateClassDialog teacherOptions={<TeacherSelectOptions />} />
           </IfPermitted>
         </Suspense>
       }
     >
       <Suspense fallback={<div>Loading classes...</div>}>
-        <ClassListFetched searchParams={props.searchParams} />
+        <ClassTable searchParams={props.searchParams} />
       </Suspense>
-    </DashboardShell>
+    </PageShell>
   );
 }

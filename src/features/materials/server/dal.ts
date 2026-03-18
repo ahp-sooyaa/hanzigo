@@ -1,5 +1,5 @@
 import "server-only";
-import { and, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { mapToClassMaterialDTO } from "./dto";
 import { db } from "@/db";
@@ -8,6 +8,7 @@ import { classes } from "@/db/schema/classes";
 import { enrollments } from "@/db/schema/enrollments";
 import { students } from "@/db/schema/students";
 import { teachers } from "@/db/schema/teachers";
+import { MaterialFilter, MaterialSort } from "@/features/materials/types";
 
 async function getTeacherIdByUserId(userId: string) {
   const teacherRecord = await db.query.teachers.findFirst({
@@ -17,7 +18,17 @@ async function getTeacherIdByUserId(userId: string) {
   return teacherRecord?.id ?? null;
 }
 
-export async function getTeacherClassMaterials(classId: string, userId: string) {
+interface TeacherClassMaterialsOptions {
+  q?: string;
+  type?: MaterialFilter;
+  sort?: MaterialSort;
+}
+
+export async function getTeacherClassMaterials(
+  classId: string,
+  userId: string,
+  options?: TeacherClassMaterialsOptions,
+) {
   "use cache";
   cacheLife("minutes");
   cacheTag(`class-materials:${classId}`);
@@ -31,11 +42,35 @@ export async function getTeacherClassMaterials(classId: string, userId: string) 
   });
   if (!classRecord) return [];
 
+  const query = options?.q?.trim();
+  const type = options?.type ?? "all";
+  const sort = options?.sort ?? "newest";
+
+  const whereConditions = [eq(classMaterials.classId, classId)];
+
+  if (type === "documents") {
+    whereConditions.push(eq(classMaterials.materialType, "pdf"));
+  } else if (type === "links") {
+    whereConditions.push(eq(classMaterials.materialType, "link"));
+  }
+
+  if (query) {
+    const searchCondition = or(
+      ilike(classMaterials.title, `%${query}%`),
+      ilike(classMaterials.originalFileName, `%${query}%`),
+      ilike(classMaterials.externalUrl, `%${query}%`),
+    );
+
+    if (searchCondition) {
+      whereConditions.push(searchCondition);
+    }
+  }
+
   const result = await db
     .select()
     .from(classMaterials)
-    .where(eq(classMaterials.classId, classId))
-    .orderBy(desc(classMaterials.createdAt));
+    .where(and(...whereConditions))
+    .orderBy(sort === "newest" ? desc(classMaterials.createdAt) : asc(classMaterials.createdAt));
 
   return result.map(mapToClassMaterialDTO);
 }
@@ -52,7 +87,17 @@ export async function getTeacherIdForOwnedClass(classId: string, userId: string)
   return teacherId;
 }
 
-export async function getStudentClassMaterials(classId: string, userId: string) {
+interface StudentClassMaterialsOptions {
+  q?: string;
+  type?: MaterialFilter;
+  sort?: MaterialSort;
+}
+
+export async function getStudentClassMaterials(
+  classId: string,
+  userId: string,
+  options?: StudentClassMaterialsOptions,
+) {
   "use cache";
   cacheLife("minutes");
   cacheTag(`class-materials:${classId}`);
@@ -70,11 +115,35 @@ export async function getStudentClassMaterials(classId: string, userId: string) 
 
   if (!enrollmentRecord) return [];
 
+  const query = options?.q?.trim();
+  const type = options?.type ?? "all";
+  const sort = options?.sort ?? "newest";
+
+  const whereConditions = [eq(classMaterials.classId, classId)];
+
+  if (type === "documents") {
+    whereConditions.push(eq(classMaterials.materialType, "pdf"));
+  } else if (type === "links") {
+    whereConditions.push(eq(classMaterials.materialType, "link"));
+  }
+
+  if (query) {
+    const searchCondition = or(
+      ilike(classMaterials.title, `%${query}%`),
+      ilike(classMaterials.originalFileName, `%${query}%`),
+      ilike(classMaterials.externalUrl, `%${query}%`),
+    );
+
+    if (searchCondition) {
+      whereConditions.push(searchCondition);
+    }
+  }
+
   const result = await db
     .select()
     .from(classMaterials)
-    .where(eq(classMaterials.classId, classId))
-    .orderBy(desc(classMaterials.createdAt));
+    .where(and(...whereConditions))
+    .orderBy(sort === "newest" ? desc(classMaterials.createdAt) : asc(classMaterials.createdAt));
 
   return result.map(mapToClassMaterialDTO);
 }

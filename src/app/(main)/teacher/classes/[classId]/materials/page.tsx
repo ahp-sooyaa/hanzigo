@@ -1,34 +1,52 @@
 import { BookOpen, CalendarDays, FileText } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { PageShell } from "@/components/layout/page-shell";
 import { TeacherClassTabs } from "@/components/layout/teacher-class-tabs";
 import { IfPermitted } from "@/features/auth/components/if-permitted";
-import { getSession } from "@/features/auth/server/utils";
+import { getSession, hasPermission } from "@/features/auth/server/utils";
 import { getTeacherOwnedClassById } from "@/features/classes/server/dal";
-import { TeacherClassMaterialsFetched } from "@/features/materials/components/teacher-class-materials-fetched";
+import { TeacherMaterialList } from "@/features/materials/components/teacher-material-list";
 import { UploadMaterialDialog } from "@/features/materials/components/upload-material-dialog";
+import { getTeacherClassMaterials } from "@/features/materials/server/dal";
+import { parseTeacherMaterialsQueryParams } from "@/features/materials/types";
 
-export default function TeacherClassMaterialsPage(props: { params: Promise<{ classId: string }> }) {
+interface TeacherClassMaterialsPageProps {
+  params: Promise<{ classId: string }>;
+  searchParams: Promise<{ q?: string; filter?: string; type?: string; sort?: string }>;
+}
+
+export default function TeacherClassMaterialsPage(props: TeacherClassMaterialsPageProps) {
   return (
     <Suspense
       fallback={<div className="mx-auto max-w-7xl px-4 pt-28 pb-16">Loading materials...</div>}
     >
-      <TeacherClassMaterialsContent params={props.params} />
+      <TeacherClassMaterialsContent params={props.params} searchParams={props.searchParams} />
     </Suspense>
   );
 }
 
-async function TeacherClassMaterialsContent(props: { params: Promise<{ classId: string }> }) {
+async function TeacherClassMaterialsContent(props: TeacherClassMaterialsPageProps) {
   const session = await getSession();
-  if (!session) notFound();
+  if (!session) {
+    throw new Error("Unauthenticated: sign in to view your classes");
+  }
 
-  const { classId } = await props.params;
+  const [{ classId }, resolvedSearchParams] = await Promise.all([props.params, props.searchParams]);
+
   const classRecord = await getTeacherOwnedClassById(classId, session.user.id);
   if (!classRecord) notFound();
 
+  const query = parseTeacherMaterialsQueryParams(resolvedSearchParams);
+
+  const [materials, canUpdate, canDelete] = await Promise.all([
+    getTeacherClassMaterials(classId, session.user.id, query),
+    hasPermission("material", "update"),
+    hasPermission("material", "delete"),
+  ]);
+
   return (
-    <DashboardShell
+    <PageShell
       portalLabel="Teacher Portal"
       breadcrumb="Class Materials"
       title="Class Materials"
@@ -45,8 +63,13 @@ async function TeacherClassMaterialsContent(props: { params: Promise<{ classId: 
       }
     >
       <Suspense fallback={<div>Loading materials...</div>}>
-        <TeacherClassMaterialsFetched classId={classId} userId={session.user.id} />
+        <TeacherMaterialList
+          materials={materials}
+          query={query}
+          canUpdate={canUpdate}
+          canDelete={canDelete}
+        />
       </Suspense>
-    </DashboardShell>
+    </PageShell>
   );
 }

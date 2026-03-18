@@ -87,7 +87,7 @@ export function EditMaterialDialog({ material }: EditMaterialDialogProps) {
             />
           </div>
 
-          {material.materialType === "link" ? (
+          {material.materialType === "link" && (
             <div className="space-y-2">
               <Label htmlFor={`externalUrl-${material.id}`}>Link URL</Label>
               <Input
@@ -98,7 +98,7 @@ export function EditMaterialDialog({ material }: EditMaterialDialogProps) {
                 required
               />
             </div>
-          ) : null}
+          )}
 
           <DialogFooter>
             <Button type="submit" disabled={isExecuting}>

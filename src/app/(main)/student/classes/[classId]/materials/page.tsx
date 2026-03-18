@@ -1,33 +1,46 @@
 import { CalendarDays, FileText, Video } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { PageShell } from "@/components/layout/page-shell";
 import { StudentClassTabs } from "@/components/layout/student-class-tabs";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/features/auth/server/utils";
 import { getStudentEnrolledClassById } from "@/features/enrollments/server/dal";
-import { StudentClassMaterialsFetched } from "@/features/materials/components/student-class-materials-fetched";
+import { StudentMaterialList } from "@/features/materials/components/student-material-list";
+import { getStudentClassMaterials } from "@/features/materials/server/dal";
+import { parseStudentMaterialsQueryParams } from "@/features/materials/types";
 
-export default function StudentClassMaterialsPage(props: { params: Promise<{ classId: string }> }) {
+interface StudentClassMaterialsPageProps {
+  params: Promise<{ classId: string }>;
+  searchParams: Promise<{ q?: string; filter?: string; type?: string; sort?: string }>;
+}
+
+export default function StudentClassMaterialsPage(props: StudentClassMaterialsPageProps) {
   return (
     <Suspense
       fallback={<div className="mx-auto max-w-7xl px-4 pt-28 pb-16">Loading materials...</div>}
     >
-      <StudentClassMaterialsContent params={props.params} />
+      <StudentClassMaterialsContent params={props.params} searchParams={props.searchParams} />
     </Suspense>
   );
 }
 
-async function StudentClassMaterialsContent(props: { params: Promise<{ classId: string }> }) {
+async function StudentClassMaterialsContent(props: StudentClassMaterialsPageProps) {
   const session = await getSession();
-  if (!session) notFound();
+  if (!session) {
+    throw new Error("Unauthenticated: sign in to view your classes");
+  }
 
-  const { classId } = await props.params;
+  const [{ classId }, resolvedSearchParams] = await Promise.all([props.params, props.searchParams]);
+
   const classRecord = await getStudentEnrolledClassById(session.user.id, classId);
   if (!classRecord) notFound();
 
+  const query = parseStudentMaterialsQueryParams(resolvedSearchParams);
+  const materials = await getStudentClassMaterials(classId, session.user.id, query);
+
   return (
-    <DashboardShell
+    <PageShell
       portalLabel="Student Portal"
       breadcrumb="Class Materials"
       title="Class Materials"
@@ -45,8 +58,8 @@ async function StudentClassMaterialsContent(props: { params: Promise<{ classId: 
       }
     >
       <Suspense fallback={<div>Loading materials...</div>}>
-        <StudentClassMaterialsFetched classId={classId} userId={session.user.id} />
+        <StudentMaterialList materials={materials} query={query} />
       </Suspense>
-    </DashboardShell>
+    </PageShell>
   );
 }

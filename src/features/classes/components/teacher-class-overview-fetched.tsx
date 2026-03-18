@@ -1,22 +1,21 @@
-import { notFound } from "next/navigation";
+import { getSession } from "@/features/auth/server/utils";
 import { getTeacherOwnedClassById } from "@/features/classes/server/dal";
 import { getTeacherClassMaterials } from "@/features/materials/server/dal";
 
 interface TeacherClassOverviewFetchedProps {
   classId: string;
-  userId: string;
 }
 
-export async function TeacherClassOverviewFetched({
-  classId,
-  userId,
-}: TeacherClassOverviewFetchedProps) {
-  const [classRecord, materials] = await Promise.all([
-    getTeacherOwnedClassById(classId, userId),
-    getTeacherClassMaterials(classId, userId),
-  ]);
+export async function TeacherClassOverviewFetched({ classId }: TeacherClassOverviewFetchedProps) {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthenticated: Please login to access this page.");
+  }
 
-  if (!classRecord) notFound();
+  const [classRecord, materials] = await Promise.all([
+    getTeacherOwnedClassById(classId, session.user.id),
+    getTeacherClassMaterials(classId, session.user.id),
+  ]);
 
   return (
     <div className="grid gap-5 md:grid-cols-3">
@@ -25,7 +24,7 @@ export async function TeacherClassOverviewFetched({
           Description
         </p>
         <p className="mt-2 text-sm text-[var(--admin-text-main)]">
-          {classRecord.description || "No class description provided yet."}
+          {classRecord?.description || "No class description provided yet."}
         </p>
       </article>
       <article className="rounded-2xl border border-[var(--admin-border)] bg-white p-5 shadow-sm">
@@ -33,7 +32,7 @@ export async function TeacherClassOverviewFetched({
           Assigned Teacher
         </p>
         <p className="mt-2 text-sm font-semibold text-[var(--admin-title)]">
-          {classRecord.teacherName || "Unassigned"}
+          {classRecord?.teacherName || "Unassigned"}
         </p>
       </article>
       <article className="rounded-2xl border border-[var(--admin-border)] bg-white p-5 shadow-sm">
@@ -41,7 +40,7 @@ export async function TeacherClassOverviewFetched({
           Materials
         </p>
         <p className="mt-2 text-sm font-semibold text-[var(--admin-title)]">
-          {materials.length} uploaded resources
+          {materials?.length || 0} uploaded resources
         </p>
       </article>
     </div>

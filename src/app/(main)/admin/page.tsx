@@ -12,13 +12,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { AdminTabs } from "@/components/layout/admin-tabs";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { PageShell } from "@/components/layout/page-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default async function AdminDashboardPage() {
   return (
-    <DashboardShell
+    <PageShell
       portalLabel="Admin Portal"
       breadcrumb="Dashboard"
       title="Admin Dashboard"
@@ -207,6 +207,6 @@ export default async function AdminDashboardPage() {
           </section>
         </div>
       </div>
-    </DashboardShell>
+    </PageShell>
   );
 }

@@ -1,13 +1,10 @@
 import { BookOpen, CalendarDays, FileText, School } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { PageShell } from "@/components/layout/page-shell";
 import { TeacherClassTabs } from "@/components/layout/teacher-class-tabs";
 import { Button } from "@/components/ui/button";
-import { getSession } from "@/features/auth/server/utils";
 import { TeacherClassOverviewFetched } from "@/features/classes/components/teacher-class-overview-fetched";
-import { getTeacherOwnedClassById } from "@/features/classes/server/dal";
 
 export default function TeacherClassOverviewPage(props: { params: Promise<{ classId: string }> }) {
   return (
@@ -18,16 +15,10 @@ export default function TeacherClassOverviewPage(props: { params: Promise<{ clas
 }
 
 async function TeacherClassOverviewContent(props: { params: Promise<{ classId: string }> }) {
-  const session = await getSession();
-  if (!session) notFound();
-
   const { classId } = await props.params;
 
-  const classRecord = await getTeacherOwnedClassById(classId, session.user.id);
-  if (!classRecord) notFound();
-
   return (
-    <DashboardShell
+    <PageShell
       portalLabel="Teacher Portal"
       breadcrumb="Class Overview"
       title="Class Overview"
@@ -47,8 +38,8 @@ async function TeacherClassOverviewContent(props: { params: Promise<{ classId: s
       }
     >
       <Suspense fallback={<div>Loading class details...</div>}>
-        <TeacherClassOverviewFetched classId={classId} userId={session.user.id} />
+        <TeacherClassOverviewFetched classId={classId} />
       </Suspense>
-    </DashboardShell>
+    </PageShell>
   );
 }

@@ -1,19 +1,21 @@
 import { TrendingUp, Users } from "lucide-react";
 import { Suspense } from "react";
 import { AdminTabs } from "@/components/layout/admin-tabs";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { PageShell } from "@/components/layout/page-shell";
 import { IfPermitted } from "@/features/auth/components/if-permitted";
 import { CreateStudentDialog } from "@/features/students/components/create-student-dialog";
-import { StudentListFetched } from "@/features/students/components/student-list-fetched";
+import { StudentTable } from "@/features/students/components/student-table";
 
 export const metadata = {
   title: "Admin | Students - Hanzigo",
   description: "Manage students in Hanzigo",
 };
 
-export default async function AdminStudentsPage() {
+export default async function AdminStudentsPage(props: {
+  searchParams: Promise<{ q?: string; filter?: string; sort?: string; page?: string }>;
+}) {
   return (
-    <DashboardShell
+    <PageShell
       portalLabel="Admin Portal"
       breadcrumb="User Management"
       title="Student Management"
@@ -31,8 +33,8 @@ export default async function AdminStudentsPage() {
       }
     >
       <Suspense fallback={<div>Loading students...</div>}>
-        <StudentListFetched />
+        <StudentTable searchParams={props.searchParams} />
       </Suspense>
-    </DashboardShell>
+    </PageShell>
   );
 }

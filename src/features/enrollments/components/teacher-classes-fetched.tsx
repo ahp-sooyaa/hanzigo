@@ -6,11 +6,7 @@ export async function TeacherClassesFetched() {
   const session = await getSession();
 
   if (!session) {
-    return (
-      <div className="rounded-md border bg-muted/20 p-6 text-sm text-muted-foreground">
-        Please sign in to view your classes.
-      </div>
-    );
+    throw new Error("Unauthenticated: sign in to view your classes");
   }
 
   const classes = await getClassesForTeacherUser(session.user.id);

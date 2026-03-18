@@ -1,6 +1,6 @@
 import { BookOpenCheck, FolderOpen, Sparkles } from "lucide-react";
 import { Suspense } from "react";
-import { DashboardPageIntro } from "@/components/layout/dashboard-page-intro";
+import { PageIntro } from "@/components/layout/page-intro";
 import { TeacherClassesFetched } from "@/features/enrollments/components/teacher-classes-fetched";
 
 export const metadata = {
@@ -11,7 +11,7 @@ export const metadata = {
 export default function TeacherDashboardPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 pt-28 pb-16 sm:px-6 lg:px-8">
-      <DashboardPageIntro
+      <PageIntro
         portalLabel="Teacher Portal"
         breadcrumb="Dashboard"
         title="Teacher Dashboard"

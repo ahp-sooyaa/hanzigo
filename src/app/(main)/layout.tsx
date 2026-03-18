@@ -2,6 +2,7 @@ import { Facebook, GraduationCap, ShieldCheck, Twitter } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { UserMenu } from "@/components/layout/user-menu";
+import { UserMenuIdentity } from "@/components/layout/user-menu-identity";
 
 export default function RootLayout({
   children,
@@ -20,9 +21,18 @@ export default function RootLayout({
               LMS ACADEMY
             </span>
           </Link>
-          <Suspense fallback={<div className="h-9 w-9 rounded-full bg-[var(--admin-border)]" />}>
-            <UserMenu />
-          </Suspense>
+          <UserMenu>
+            <Suspense
+              fallback={
+                <>
+                  <div className="hidden h-9 w-36 rounded-lg bg-[var(--admin-border)]/70 lg:block" />
+                  <div className="h-9 w-9 rounded-full bg-[var(--admin-border)]" />
+                </>
+              }
+            >
+              <UserMenuIdentity />
+            </Suspense>
+          </UserMenu>
         </div>
       </header>
 
