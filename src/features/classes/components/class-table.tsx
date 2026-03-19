@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { Suspense } from "react";
 import { DeleteClassAlert } from "./delete-class-alert";
 import { EditClassDialog } from "./edit-class-dialog";
 import { TeacherSelectOptions } from "./teacher-select-options";
@@ -13,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { hasPermission } from "@/features/auth/server/utils";
+import { IfPermitted } from "@/features/auth/components/if-permitted";
 import { getClasses } from "@/features/classes/server/dal";
 import { sanitizeQuery } from "@/features/shared/table-query";
 
@@ -31,11 +32,7 @@ export async function ClassTable({ searchParams }: ClassTableProps) {
   const resolvedSearchParams = await searchParams;
   const query = sanitizeQuery(resolvedSearchParams, CLASS_FILTER_OPTIONS, "all");
 
-  const [classesResponse, canUpdate, canDelete] = await Promise.all([
-    getClasses(query.page, 10, query.q),
-    hasPermission("class", "update"),
-    hasPermission("class", "delete"),
-  ]);
+  const classesResponse = await getClasses(query.page, 10, query.q);
 
   const filtered = classesResponse.data
     .filter((classRecord) => {
@@ -130,13 +127,19 @@ export async function ClassTable({ searchParams }: ClassTableProps) {
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      {canUpdate && (
-                        <EditClassDialog
-                          classRecord={classRecord}
-                          teacherOptions={<TeacherSelectOptions />}
-                        />
-                      )}
-                      {canDelete && <DeleteClassAlert classRecord={classRecord} />}
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <IfPermitted resource="class" action="update">
+                          <EditClassDialog
+                            classRecord={classRecord}
+                            teacherOptions={<TeacherSelectOptions />}
+                          />
+                        </IfPermitted>
+                      </Suspense>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <IfPermitted resource="class" action="delete">
+                          <DeleteClassAlert classRecord={classRecord} />
+                        </IfPermitted>
+                      </Suspense>
                     </div>
                   </TableCell>
                 </TableRow>

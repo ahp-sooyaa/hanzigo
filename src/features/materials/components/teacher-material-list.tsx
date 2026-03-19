@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { Link2 } from "lucide-react";
+import { Suspense } from "react";
 import { DeleteMaterialAlert } from "./delete-material-alert";
 import { EditMaterialDialog } from "./edit-material-dialog";
 import { PreviewMaterialDialog } from "./preview-material-dialog";
@@ -15,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { IfPermitted } from "@/features/auth/components/if-permitted";
 import { ClassMaterialDTO } from "@/features/materials/server/dto";
 import { TeacherMaterialsQueryParams } from "@/features/materials/types";
 
@@ -38,7 +40,7 @@ const MATERIAL_FILTER_OPTIONS = [
   { value: "links", label: "Links" },
 ] as const;
 
-export function TeacherMaterialList({ materials, query, canUpdate, canDelete }: MaterialListProps) {
+export function TeacherMaterialList({ materials, query }: MaterialListProps) {
   const hasActiveFilters = query.q.length > 0 || query.type !== "all" || query.sort !== "newest";
 
   if (materials.length === 0 && !hasActiveFilters) {
@@ -157,8 +159,16 @@ export function TeacherMaterialList({ materials, query, canUpdate, canDelete }: 
                           </Button>
                         ))}
 
-                      {canUpdate && <EditMaterialDialog material={material} />}
-                      {canDelete && <DeleteMaterialAlert material={material} />}
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <IfPermitted resource="material" action="update">
+                          <EditMaterialDialog material={material} />
+                        </IfPermitted>
+                      </Suspense>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <IfPermitted resource="material" action="delete">
+                          <DeleteMaterialAlert material={material} />
+                        </IfPermitted>
+                      </Suspense>
                     </div>
                   </TableCell>
                 </TableRow>

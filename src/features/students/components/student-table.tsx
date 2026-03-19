@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { Download } from "lucide-react";
+import { Suspense } from "react";
 import { DeleteStudentAlert } from "./delete-student-alert";
 import { EditStudentDialog } from "./edit-student-dialog";
 import { DataEmptyState, DataListShell, DataTableCard } from "@/components/layout/data-list";
@@ -14,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { hasPermission } from "@/features/auth/server/utils";
+import { IfPermitted } from "@/features/auth/components/if-permitted";
 import { ManageEnrollmentDialog } from "@/features/enrollments/components/manage-enrollment-dialog";
 import {
   getClassOptionsForEnrollment,
@@ -37,11 +38,7 @@ export async function StudentTable({ searchParams }: StudentTableProps) {
   const resolvedSearchParams = await searchParams;
   const query = sanitizeQuery(resolvedSearchParams, STUDENT_FILTER_OPTIONS, "all");
 
-  const [students, canUpdate, canDelete] = await Promise.all([
-    getStudents(),
-    hasPermission("student", "update"),
-    hasPermission("student", "delete"),
-  ]);
+  const students = await getStudents();
 
   const filtered = students
     .filter((student) => {
@@ -149,8 +146,16 @@ export async function StudentTable({ searchParams }: StudentTableProps) {
                         classOptions={classOptions}
                         enrolledClasses={enrollmentsByStudentId[student.id] || []}
                       />
-                      {canUpdate && <EditStudentDialog student={student} />}
-                      {canDelete && <DeleteStudentAlert student={student} />}
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <IfPermitted resource="student" action="update">
+                          <EditStudentDialog student={student} />
+                        </IfPermitted>
+                      </Suspense>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <IfPermitted resource="student" action="delete">
+                          <DeleteStudentAlert student={student} />
+                        </IfPermitted>
+                      </Suspense>
                     </div>
                   </TableCell>
                 </TableRow>

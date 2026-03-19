@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { Suspense } from "react";
 import { DeleteTeacherAlert } from "./delete-teacher-alert";
 import { EditTeacherDialog } from "./edit-teacher-dialog";
 import { DataEmptyState, DataListShell, DataTableCard } from "@/components/layout/data-list";
@@ -12,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { hasPermission } from "@/features/auth/server/utils";
+import { IfPermitted } from "@/features/auth/components/if-permitted";
 import { sanitizeQuery } from "@/features/shared/table-query";
 import { getTeachers } from "@/features/teachers/server/dal";
 
@@ -30,11 +31,7 @@ export async function TeacherTable({ searchParams }: TeacherTableProps) {
   const resolvedSearchParams = await searchParams;
   const query = sanitizeQuery(resolvedSearchParams, TEACHER_FILTER_OPTIONS, "all");
 
-  const [teachers, canUpdate, canDelete] = await Promise.all([
-    getTeachers(),
-    hasPermission("teacher", "update"),
-    hasPermission("teacher", "delete"),
-  ]);
+  const teachers = await getTeachers();
 
   const filtered = teachers
     .filter((teacher) => {
@@ -125,8 +122,16 @@ export async function TeacherTable({ searchParams }: TeacherTableProps) {
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      {canUpdate && <EditTeacherDialog teacher={teacher} />}
-                      {canDelete && <DeleteTeacherAlert teacher={teacher} />}
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <IfPermitted resource="teacher" action="update">
+                          <EditTeacherDialog teacher={teacher} />
+                        </IfPermitted>
+                      </Suspense>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <IfPermitted resource="teacher" action="delete">
+                          <DeleteTeacherAlert teacher={teacher} />
+                        </IfPermitted>
+                      </Suspense>
                     </div>
                   </TableCell>
                 </TableRow>

@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { PageShell } from "@/components/layout/page-shell";
 import { TeacherClassTabs } from "@/components/layout/teacher-class-tabs";
 import { IfPermitted } from "@/features/auth/components/if-permitted";
-import { getSession, hasPermission } from "@/features/auth/server/utils";
+import { getSession } from "@/features/auth/server/utils";
 import { getTeacherOwnedClassById } from "@/features/classes/server/dal";
 import { TeacherMaterialList } from "@/features/materials/components/teacher-material-list";
 import { UploadMaterialDialog } from "@/features/materials/components/upload-material-dialog";
@@ -39,11 +39,7 @@ async function TeacherClassMaterialsContent(props: TeacherClassMaterialsPageProp
 
   const query = parseTeacherMaterialsQueryParams(resolvedSearchParams);
 
-  const [materials, canUpdate, canDelete] = await Promise.all([
-    getTeacherClassMaterials(classId, session.user.id, query),
-    hasPermission("material", "update"),
-    hasPermission("material", "delete"),
-  ]);
+  const materials = await getTeacherClassMaterials(classId, session.user.id, query);
 
   return (
     <PageShell
@@ -63,12 +59,7 @@ async function TeacherClassMaterialsContent(props: TeacherClassMaterialsPageProp
       }
     >
       <Suspense fallback={<div>Loading materials...</div>}>
-        <TeacherMaterialList
-          materials={materials}
-          query={query}
-          canUpdate={canUpdate}
-          canDelete={canDelete}
-        />
+        <TeacherMaterialList materials={materials} query={query} />
       </Suspense>
     </PageShell>
   );
