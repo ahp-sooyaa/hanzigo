@@ -111,8 +111,7 @@ export const createClassMaterial = permissionAction("material", "create")
       fileSize: parsedInput.fileSize ?? null,
     });
 
-    revalidateTag(`class-materials:${parsedInput.classId}`, "minutes");
-    revalidateTag(`classes:teacher-user:${ctx.session.user.id}`, "minutes");
+    revalidateTag(`class-materials:${parsedInput.classId}`, "max");
 
     return { success: true };
   });
@@ -147,8 +146,7 @@ export const updateClassMaterial = permissionAction("material", "update")
       })
       .where(eq(classMaterials.id, parsedInput.id));
 
-    revalidateTag(`class-materials:${parsedInput.classId}`, "minutes");
-    revalidateTag(`classes:teacher-user:${ctx.session.user.id}`, "minutes");
+    revalidateTag(`class-materials:${parsedInput.classId}`, "max");
 
     return { success: true };
   });
@@ -177,8 +175,7 @@ export const deleteClassMaterial = permissionAction("material", "delete")
 
     await db.delete(classMaterials).where(eq(classMaterials.id, parsedInput.id));
 
-    revalidateTag(`class-materials:${parsedInput.classId}`, "minutes");
-    revalidateTag(`classes:teacher-user:${ctx.session.user.id}`, "minutes");
+    revalidateTag(`class-materials:${parsedInput.classId}`, "max");
 
     return { success: true };
   });

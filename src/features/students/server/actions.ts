@@ -38,7 +38,7 @@ export const createStudent = permissionAction("student", "create")
         userId: newUser.user.id,
       });
 
-      revalidateTag("students", "minutes");
+      revalidateTag("students", "max");
 
       return { success: true };
     } catch (error: any) {
@@ -85,7 +85,8 @@ export const updateStudent = permissionAction("student", "update")
         }
       }
 
-      revalidateTag("students", "minutes");
+      revalidateTag("students", "max");
+
       return { success: true };
     } catch (error: any) {
       throw new Error(error.message || "Failed to update student");
@@ -110,7 +111,9 @@ export const deleteStudent = permissionAction("student", "delete")
 
       await db.delete(user).where(eq(user.id, studentRecord.userId));
 
-      revalidateTag("students", "minutes");
+      revalidateTag("students", "max");
+      revalidateTag(`enrollments:student:${parsedInput.id}`, "max");
+
       return { success: true };
     } catch (error: any) {
       throw new Error(error.message || "Failed to delete student");

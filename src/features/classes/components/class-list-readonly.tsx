@@ -1,34 +1,13 @@
-"use client";
-
-import { BookOpenCheck, Clock3, GraduationCap, Users } from "lucide-react";
+import { BookOpenCheck, Clock3, Users } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 interface ClassListReadonlyProps {
   classes: { id: string; name: string; description: string | null; teacherName: string | null }[];
-  emptyTitle?: string;
-  emptyDescription?: string;
   role?: "student" | "teacher";
 }
 
-export function ClassListReadonly({
-  classes,
-  emptyTitle = "No classes found",
-  emptyDescription = "There are no classes to show yet.",
-  role = "student",
-}: ClassListReadonlyProps) {
-  if (classes.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-          <GraduationCap className="h-6 w-6" />
-        </span>
-        <h3 className="mt-4 text-lg font-semibold text-foreground">{emptyTitle}</h3>
-        <p className="mt-2 max-w-md text-sm text-muted-foreground">{emptyDescription}</p>
-      </div>
-    );
-  }
-
+export async function ClassListReadonly({ classes, role = "student" }: ClassListReadonlyProps) {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {classes.map((classRecord) => (

@@ -60,33 +60,34 @@ export async function getClasses(
   };
 }
 
-export async function getClassById(id: string): Promise<ClassDTO | null> {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag("classes");
+// detail page not exist yet
+// export async function getClassById(id: string): Promise<ClassDTO | null> {
+//   "use cache";
+//   cacheLife("minutes");
+//   cacheTag("classes", `classes:${id}`);
 
-  const result = await db
-    .select({
-      id: classes.id,
-      name: classes.name,
-      description: classes.description,
-      teacherId: classes.teacherId,
-      createdAt: classes.createdAt,
-      updatedAt: classes.updatedAt,
-      teacherName: user.name,
-    })
-    .from(classes)
-    .innerJoin(teachers, eq(classes.teacherId, teachers.id))
-    .innerJoin(user, eq(teachers.userId, user.id))
-    .where(eq(classes.id, id))
-    .limit(1);
+//   const result = await db
+//     .select({
+//       id: classes.id,
+//       name: classes.name,
+//       description: classes.description,
+//       teacherId: classes.teacherId,
+//       createdAt: classes.createdAt,
+//       updatedAt: classes.updatedAt,
+//       teacherName: user.name,
+//     })
+//     .from(classes)
+//     .innerJoin(teachers, eq(classes.teacherId, teachers.id))
+//     .innerJoin(user, eq(teachers.userId, user.id))
+//     .where(eq(classes.id, id))
+//     .limit(1);
 
-  if (result.length === 0) {
-    return null;
-  }
+//   if (result.length === 0) {
+//     return null;
+//   }
 
-  return mapToClassDTO(result[0]);
-}
+//   return mapToClassDTO(result[0]);
+// }
 
 export async function getTeacherOwnedClassById(
   classId: string,
@@ -94,9 +95,9 @@ export async function getTeacherOwnedClassById(
 ): Promise<ClassDTO | null> {
   "use cache";
   cacheLife("minutes");
-  cacheTag(`classes:teacher-user:${userId}`);
+  cacheTag(`classes:teacher:${userId}`);
 
-  const result = await db
+  const [classRecord] = await db
     .select({
       id: classes.id,
       name: classes.name,
@@ -112,7 +113,6 @@ export async function getTeacherOwnedClassById(
     .where(eq(classes.id, classId))
     .limit(1);
 
-  const classRecord = result[0];
   if (!classRecord) return null;
 
   const teacherRecord = await db.query.teachers.findFirst({ where: eq(teachers.userId, userId) });

@@ -29,30 +29,31 @@ export async function getStudents(): Promise<StudentDTO[]> {
   return result.map(mapToStudentDTO);
 }
 
-export async function getStudentById(id: string): Promise<StudentDTO | null> {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag("students");
+// detail page not exist yet
+// export async function getStudentById(id: string): Promise<StudentDTO | null> {
+//   "use cache";
+//   cacheLife("minutes");
+//   cacheTag("students", `students:${id}`);
 
-  const result = await db
-    .select({
-      id: students.id,
-      userId: students.userId,
-      createdAt: students.createdAt,
-      user: {
-        name: user.name,
-        email: user.email,
-        banned: user.banned,
-      },
-    })
-    .from(students)
-    .innerJoin(user, eq(students.userId, user.id))
-    .where(eq(students.id, id))
-    .limit(1);
+//   const result = await db
+//     .select({
+//       id: students.id,
+//       userId: students.userId,
+//       createdAt: students.createdAt,
+//       user: {
+//         name: user.name,
+//         email: user.email,
+//         banned: user.banned,
+//       },
+//     })
+//     .from(students)
+//     .innerJoin(user, eq(students.userId, user.id))
+//     .where(eq(students.id, id))
+//     .limit(1);
 
-  if (result.length === 0) {
-    return null;
-  }
+//   if (result.length === 0) {
+//     return null;
+//   }
 
-  return mapToStudentDTO(result[0]);
-}
+//   return mapToStudentDTO(result[0]);
+// }

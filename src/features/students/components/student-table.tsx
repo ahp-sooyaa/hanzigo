@@ -17,10 +17,7 @@ import {
 } from "@/components/ui/table";
 import { IfPermitted } from "@/features/auth/components/if-permitted";
 import { ManageEnrollmentDialog } from "@/features/enrollments/components/manage-enrollment-dialog";
-import {
-  getClassOptionsForEnrollment,
-  getEnrollmentsByStudentIds,
-} from "@/features/enrollments/server/dal";
+import { ManageEnrollmentDialogContent } from "@/features/enrollments/components/manage-enrollment-dialog-content";
 import { sanitizeQuery } from "@/features/shared/table-query";
 import { getStudents } from "@/features/students/server/dal";
 
@@ -56,12 +53,6 @@ export async function StudentTable({ searchParams }: StudentTableProps) {
       if (query.sort === "oldest") return +new Date(a.createdAt) - +new Date(b.createdAt);
       return +new Date(b.createdAt) - +new Date(a.createdAt);
     });
-
-  const studentIds = filtered.map((student) => student.id);
-  const [classOptions, enrollmentsByStudentId] = await Promise.all([
-    getClassOptionsForEnrollment(),
-    getEnrollmentsByStudentIds(studentIds),
-  ]);
 
   const hasActiveFilters = query.q.length > 0 || query.filter !== "all" || query.sort !== "newest";
 
@@ -141,11 +132,9 @@ export async function StudentTable({ searchParams }: StudentTableProps) {
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <ManageEnrollmentDialog
-                        student={student}
-                        classOptions={classOptions}
-                        enrolledClasses={enrollmentsByStudentId[student.id] || []}
-                      />
+                      <ManageEnrollmentDialog>
+                        <ManageEnrollmentDialogContent student={student} />
+                      </ManageEnrollmentDialog>
                       <Suspense fallback={<div>Loading...</div>}>
                         <IfPermitted resource="student" action="update">
                           <EditStudentDialog student={student} />

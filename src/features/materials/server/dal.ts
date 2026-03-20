@@ -10,14 +10,6 @@ import { students } from "@/db/schema/students";
 import { teachers } from "@/db/schema/teachers";
 import { MaterialFilter, MaterialSort } from "@/features/materials/types";
 
-async function getTeacherIdByUserId(userId: string) {
-  const teacherRecord = await db.query.teachers.findFirst({
-    where: eq(teachers.userId, userId),
-  });
-
-  return teacherRecord?.id ?? null;
-}
-
 interface TeacherClassMaterialsOptions {
   q?: string;
   type?: MaterialFilter;
@@ -32,13 +24,14 @@ export async function getTeacherClassMaterials(
   "use cache";
   cacheLife("minutes");
   cacheTag(`class-materials:${classId}`);
-  cacheTag(`classes:teacher-user:${userId}`);
 
-  const teacherId = await getTeacherIdByUserId(userId);
-  if (!teacherId) return [];
+  const teacherRecord = await db.query.teachers.findFirst({
+    where: eq(teachers.userId, userId),
+  });
+  if (!teacherRecord) return [];
 
   const classRecord = await db.query.classes.findFirst({
-    where: and(eq(classes.id, classId), eq(classes.teacherId, teacherId)),
+    where: and(eq(classes.id, classId), eq(classes.teacherId, teacherRecord.id)),
   });
   if (!classRecord) return [];
 
@@ -75,18 +68,6 @@ export async function getTeacherClassMaterials(
   return result.map(mapToClassMaterialDTO);
 }
 
-export async function getTeacherIdForOwnedClass(classId: string, userId: string) {
-  const teacherId = await getTeacherIdByUserId(userId);
-  if (!teacherId) return null;
-
-  const classRecord = await db.query.classes.findFirst({
-    where: and(eq(classes.id, classId), eq(classes.teacherId, teacherId)),
-  });
-
-  if (!classRecord) return null;
-  return teacherId;
-}
-
 interface StudentClassMaterialsOptions {
   q?: string;
   type?: MaterialFilter;
@@ -101,7 +82,6 @@ export async function getStudentClassMaterials(
   "use cache";
   cacheLife("minutes");
   cacheTag(`class-materials:${classId}`);
-  cacheTag(`enrollments:user:${userId}`);
 
   const studentRecord = await db.query.students.findFirst({
     where: eq(students.userId, userId),
