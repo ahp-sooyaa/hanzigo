@@ -47,7 +47,7 @@ export const createEnrollment = permissionAction("enrollment", "create")
         classId: parsedInput.classId,
       });
 
-      revalidateTag(`enrollments:student:${parsedInput.studentId}`, "max");
+      revalidateTag(`enrollments:student:${studentRecord.userId}`, "max");
 
       return { success: true };
     } catch (error: any) {
@@ -76,7 +76,7 @@ export const deleteEnrollment = permissionAction("enrollment", "delete")
           ),
         );
 
-      revalidateTag(`enrollments:student:${parsedInput.studentId}`, "max");
+      revalidateTag(`enrollments:student:${studentRecord.userId}`, "max");
 
       return { success: true };
     } catch (error: any) {

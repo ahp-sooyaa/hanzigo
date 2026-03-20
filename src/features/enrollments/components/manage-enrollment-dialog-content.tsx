@@ -8,14 +8,14 @@ import {
 } from "@/features/enrollments/server/dal";
 
 interface ManageEnrollmentDialogContentProps {
-  student: { id: string; name: string; email: string };
+  student: { id: string; name: string; email: string; userId: string };
 }
 
 export async function ManageEnrollmentDialogContent({
   student,
 }: ManageEnrollmentDialogContentProps) {
   const [enrolledClasses, classOptions] = await Promise.all([
-    getEnrollmentsByStudentUserId(student.id),
+    getEnrollmentsByStudentUserId(student.userId),
     getClassOptionsForEnrollment(),
   ]);
 

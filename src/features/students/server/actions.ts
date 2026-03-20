@@ -112,7 +112,7 @@ export const deleteStudent = permissionAction("student", "delete")
       await db.delete(user).where(eq(user.id, studentRecord.userId));
 
       revalidateTag("students", "max");
-      revalidateTag(`enrollments:student:${parsedInput.id}`, "max");
+      revalidateTag(`enrollments:student:${studentRecord.userId}`, "max");
 
       return { success: true };
     } catch (error: any) {
