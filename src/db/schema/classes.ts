@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import { classMaterials } from "./class-materials";
 import { enrollments } from "./enrollments";
 import { teachers } from "./teachers";
 export const classes = pgTable("classes", {
@@ -21,4 +22,5 @@ export const classesRelations = relations(classes, ({ one, many }) => ({
     references: [teachers.id],
   }),
   enrollments: many(enrollments),
+  materials: many(classMaterials),
 }));

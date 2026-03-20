@@ -6,18 +6,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createClass, updateClass } from "@/features/classes/server/actions";
 
+import type { ReactNode } from "react";
+
 interface ClassFormProps {
-  teachers: { id: string; name: string }[];
+  teacherOptions: ReactNode;
   defaultValues?: {
     id?: string;
     name?: string;
@@ -27,7 +23,7 @@ interface ClassFormProps {
   onSuccess?: () => void;
 }
 
-export function ClassForm({ teachers, defaultValues, onSuccess }: ClassFormProps) {
+export function ClassForm({ teacherOptions, defaultValues, onSuccess }: ClassFormProps) {
   const isEditing = !!defaultValues?.id;
 
   // Need to control the select value for native form submission
@@ -55,7 +51,7 @@ export function ClassForm({ teachers, defaultValues, onSuccess }: ClassFormProps
 
   const isExecuting = isEditing ? updateAction.isExecuting : createAction.isExecuting;
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
@@ -101,19 +97,7 @@ export function ClassForm({ teachers, defaultValues, onSuccess }: ClassFormProps
           <SelectTrigger>
             <SelectValue placeholder="Select a teacher" />
           </SelectTrigger>
-          <SelectContent position="popper">
-            {teachers.length === 0 ? (
-              <div className="p-2 text-center text-sm text-muted-foreground">
-                No teachers available
-              </div>
-            ) : (
-              teachers.map((teacher) => (
-                <SelectItem key={teacher.id} value={teacher.id}>
-                  {teacher.name}
-                </SelectItem>
-              ))
-            )}
-          </SelectContent>
+          <SelectContent position="popper">{teacherOptions}</SelectContent>
         </Select>
         {/* Hidden input to ensure native form data doesn't strictly need it, but semantic HTML is good */}
         <input type="hidden" name="teacherId" value={teacherId} />

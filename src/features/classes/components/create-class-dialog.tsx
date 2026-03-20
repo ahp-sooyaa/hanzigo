@@ -12,11 +12,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+import type { ReactNode } from "react";
+
 interface CreateClassDialogProps {
-  teachers: { id: string; name: string }[];
+  teacherOptions: ReactNode;
 }
 
-export function CreateClassDialog({ teachers }: CreateClassDialogProps) {
+export function CreateClassDialog({ teacherOptions }: CreateClassDialogProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -31,7 +33,7 @@ export function CreateClassDialog({ teachers }: CreateClassDialogProps) {
         <DialogHeader>
           <DialogTitle>Create New Class</DialogTitle>
         </DialogHeader>
-        <ClassForm teachers={teachers} onSuccess={() => setOpen(false)} />
+        <ClassForm teacherOptions={teacherOptions} onSuccess={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

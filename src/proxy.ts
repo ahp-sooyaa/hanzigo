@@ -8,10 +8,18 @@ const routeRoles: Record<string, string[]> = {
 };
 
 // Define the permissions required for each route
-const routePermissions: Record<string, { resource: string; action: string }> = {
-  "/admin/classes": { resource: "class", action: "read" },
-  "/admin/students": { resource: "student", action: "read" },
-  "/admin/teachers": { resource: "teacher", action: "read" },
+const routePermissions: Record<string, { resource: string; action: string }[]> = {
+  "/admin/classes": [{ resource: "class", action: "read" }],
+  "/admin/students": [{ resource: "student", action: "read" }],
+  "/admin/teachers": [{ resource: "teacher", action: "read" }],
+  "/teacher/classes": [
+    { resource: "class", action: "read" },
+    { resource: "material", action: "read" },
+  ],
+  "/student/classes": [
+    { resource: "class", action: "read" },
+    { resource: "material", action: "read" },
+  ],
 };
 
 export async function proxy(request: NextRequest) {
@@ -38,12 +46,16 @@ export async function proxy(request: NextRequest) {
   }
 
   // Layer 2: fine-grained permission check
-  for (const [route, permission] of Object.entries(routePermissions)) {
+  for (const [route, permissions] of Object.entries(routePermissions)) {
     if (pathname.startsWith(route)) {
       const result = await auth.api.userHasPermission({
         body: {
           userId: session.user.id,
-          permissions: { [permission.resource]: [permission.action] },
+          permissions: permissions.reduce<Record<string, string[]>>((acc, permission) => {
+            const actions = acc[permission.resource] ?? [];
+            acc[permission.resource] = [...actions, permission.action];
+            return acc;
+          }, {}),
         },
       });
       if (!result || result.success === false) {

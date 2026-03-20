@@ -47,8 +47,8 @@ export const createClass = permissionAction("class", "create")
         teacherId: parsedInput.teacherId,
       });
 
-      revalidateTag("classes", "minutes");
-      revalidateTag(`classes:teacher-user:${teacherRecord.userId}`, "minutes");
+      revalidateTag("classes", "max");
+      revalidateTag(`classes:teacher:${teacherRecord.userId}`, "max");
 
       return { success: true };
     } catch (error: any) {
@@ -90,8 +90,9 @@ export const updateClass = permissionAction("class", "update")
         })
         .where(eq(classes.id, parsedInput.id));
 
-      revalidateTag("classes", "minutes");
-      revalidateTag(`classes:teacher-user:${teacherRecord.userId}`, "minutes");
+      revalidateTag("classes", "max");
+      // revalidateTag(`classes:${parsedInput.id}`, "max");
+      revalidateTag(`classes:teacher:${teacherRecord.userId}`, "max");
 
       return { success: true };
     } catch (error: any) {
@@ -121,8 +122,9 @@ export const deleteClass = permissionAction("class", "delete")
 
       await db.delete(classes).where(eq(classes.id, parsedInput.id));
 
-      revalidateTag("classes", "minutes");
-      revalidateTag(`classes:teacher-user:${teacherRecord.userId}`, "minutes");
+      revalidateTag("classes", "max");
+      revalidateTag(`classes:${parsedInput.id}`, "max");
+      revalidateTag(`classes:teacher:${teacherRecord.userId}`, "max");
 
       return { success: true };
     } catch (error: any) {

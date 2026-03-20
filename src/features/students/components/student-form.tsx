@@ -38,7 +38,7 @@ export function StudentForm({ defaultValues, onSuccess }: StudentFormProps) {
 
   const isExecuting = isEditing ? updateAction.isExecuting : createAction.isExecuting;
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;

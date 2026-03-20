@@ -44,7 +44,7 @@ export const createTeacher = permissionAction("teacher", "create")
         bio: parsedInput.bio || null,
       });
 
-      revalidateTag("teachers", "minutes");
+      revalidateTag("teachers", "max");
 
       return { success: true };
     } catch (error: any) {
@@ -109,7 +109,8 @@ export const updateTeacher = permissionAction("teacher", "update")
           .where(eq(teachers.id, parsedInput.id));
       }
 
-      revalidateTag("teachers", "minutes");
+      revalidateTag("teachers", "max");
+
       return { success: true };
     } catch (error: any) {
       throw new Error(error.message || "Failed to update teacher");
@@ -137,7 +138,9 @@ export const deleteTeacher = permissionAction("teacher", "delete")
       // Drizzle cascades should delete the teacher record from `teachers` table.
       await db.delete(user).where(eq(user.id, teacherRecord.userId));
 
-      revalidateTag("teachers", "minutes");
+      revalidateTag("teachers", "max");
+      revalidateTag(`classes:teacher:${teacherRecord.userId}`, "max");
+
       return { success: true };
     } catch (error: any) {
       throw new Error(error.message || "Failed to delete teacher");

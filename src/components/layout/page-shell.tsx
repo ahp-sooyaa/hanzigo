@@ -8,7 +8,7 @@ interface DashboardStat {
   tone?: "default" | "warning";
 }
 
-interface DashboardShellProps {
+interface PageShellProps {
   breadcrumb: string;
   title: string;
   children: ReactNode;
@@ -18,7 +18,7 @@ interface DashboardShellProps {
   tabs?: ReactNode;
 }
 
-export function DashboardShell({
+export function PageShell({
   breadcrumb,
   title,
   children,
@@ -26,7 +26,7 @@ export function DashboardShell({
   stats,
   action,
   tabs,
-}: DashboardShellProps) {
+}: PageShellProps) {
   const hasStats = Boolean(stats?.length);
 
   return (
@@ -46,7 +46,7 @@ export function DashboardShell({
               <h1 className="text-3xl font-bold tracking-tight text-[var(--admin-title)] md:text-4xl">
                 {title}
               </h1>
-              {hasStats ? (
+              {hasStats && (
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   {stats?.map(({ icon: Icon, label, tone = "default" }) => (
                     <span
@@ -64,13 +64,13 @@ export function DashboardShell({
                     </span>
                   ))}
                 </div>
-              ) : null}
+              )}
             </div>
-            {action ? (
+            {action && (
               <div className="[&_button]:h-11 [&_button]:rounded-xl [&_button]:bg-[var(--admin-primary)] [&_button]:px-5 [&_button]:font-semibold [&_button]:text-white [&_button]:hover:bg-[var(--admin-primary-strong)]">
                 {action}
               </div>
-            ) : null}
+            )}
           </div>
 
           {tabs}

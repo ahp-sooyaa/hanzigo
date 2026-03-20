@@ -47,8 +47,8 @@ export const createEnrollment = permissionAction("enrollment", "create")
         classId: parsedInput.classId,
       });
 
-      revalidateTag(`enrollments:student:${parsedInput.studentId}`, "minutes");
-      revalidateTag(`enrollments:user:${studentRecord.userId}`, "minutes");
+      revalidateTag(`enrollments:student:${studentRecord.userId}`, "max");
+
       return { success: true };
     } catch (error: any) {
       throw new Error(error.message || "Failed to enroll student");
@@ -76,8 +76,8 @@ export const deleteEnrollment = permissionAction("enrollment", "delete")
           ),
         );
 
-      revalidateTag(`enrollments:student:${parsedInput.studentId}`, "minutes");
-      revalidateTag(`enrollments:user:${studentRecord.userId}`, "minutes");
+      revalidateTag(`enrollments:student:${studentRecord.userId}`, "max");
+
       return { success: true };
     } catch (error: any) {
       throw new Error(error.message || "Failed to unenroll student");

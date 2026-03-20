@@ -13,12 +13,14 @@ import {
 } from "@/components/ui/dialog";
 import { ClassDTO } from "@/features/classes/server/dto";
 
+import type { ReactNode } from "react";
+
 interface EditClassDialogProps {
   classRecord: ClassDTO;
-  teachers: { id: string; name: string }[];
+  teacherOptions: ReactNode;
 }
 
-export function EditClassDialog({ classRecord, teachers }: EditClassDialogProps) {
+export function EditClassDialog({ classRecord, teacherOptions }: EditClassDialogProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -40,7 +42,7 @@ export function EditClassDialog({ classRecord, teachers }: EditClassDialogProps)
             description: classRecord.description,
             teacherId: classRecord.teacherId,
           }}
-          teachers={teachers}
+          teacherOptions={teacherOptions}
           onSuccess={() => setOpen(false)}
         />
       </DialogContent>
