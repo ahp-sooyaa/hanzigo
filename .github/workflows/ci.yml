@@ -1,0 +1,29 @@
+name: CI (Lint & Build Check)
+
+on:
+  pull_request:
+    branches: [main] # Run when trying to merge into main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Format Check
+        run: bun run fmt:check
+
+      - name: Verify (Typecheck, Lint & Build)
+        run: bun run verify
+        env:
+          # Add any dummy env vars your build needs to pass
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BETTER_AUTH_SECRET: "dummy_secret_for_build"
+          BETTER_AUTH_URL: "http://localhost:3000"
+          BLOB_READ_WRITE_TOKEN: "dummy_blob_token"
